@@ -14,6 +14,17 @@ namespace phonezone_backend.Data
         {
         }
 
+        public PhoneZoneDBContext()
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
+
+
         public DbSet<phonezone_backend.Models.User> Users { get; set; } = default!;
+        public DbSet<phonezone_backend.Models.Product> Products { get; set; } = default!;
+        public DbSet<phonezone_backend.Models.ProductDetail> ProductDetails { get; set; } = default!;
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using phonezone_backend.Data;
+using phonezone_backend.Services;
+using System.IO;
+
 namespace phonezone_backend
 {
     public class Program
@@ -8,19 +11,59 @@ namespace phonezone_backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
+            // Đăng ký DbContext
             builder.Services.AddDbContext<PhoneZoneDBContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("PhoneZoneDBContext") ?? throw new InvalidOperationException("Connection string 'PhoneZoneDBContext' not found.")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("PhoneZoneDBContext")
+                    ?? throw new InvalidOperationException("Connection string 'PhoneZoneDBContext' not found.")));
 
-            // Add services to the container.
+            // Đăng ký ExcelService
+            builder.Services.AddTransient<ExcelService>();
 
+            // Đăng ký các dịch vụ khác
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Xây dựng ứng dụng
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Thêm dữ liệu từ Excel vào cơ sở dữ liệu
+            using (var scope = app.Services.CreateScope())
+            {
+                try
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<PhoneZoneDBContext>();
+                    var excelService = scope.ServiceProvider.GetRequiredService<ExcelService>();
+
+                    // Đường dẫn tới file Excel
+                    string excelPath = @"Data/data.xlsx";
+                    var products = excelService.ReadDataFromExcel(excelPath);
+
+                    var existingProducts = dbContext.Products
+                        .Where(p => products.Select(prod => prod.ProductName).Contains(p.ProductName))
+                        .ToList();
+
+                    var newProducts = products
+                        .Where(product => !existingProducts.Any(ep => ep.ProductName == product.ProductName && ep.Branch == product.Branch))
+                        .ToList();
+
+                    dbContext.Products.AddRange(newProducts);
+                    dbContext.SaveChanges();
+
+                    var newDetails = newProducts.Select(product => product.Details).ToList();
+                    dbContext.ProductDetails.AddRange(newDetails);
+                    dbContext.SaveChanges();
+
+                    Console.WriteLine("Dữ liệu đã được nhập vào cơ sở dữ liệu thành công!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Đã xảy ra lỗi: {ex.Message}");
+                }
+            }
+
+            // Cấu hình pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -28,12 +71,8 @@ namespace phonezone_backend
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }
