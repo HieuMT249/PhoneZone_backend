@@ -20,6 +20,10 @@ namespace phonezone_backend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Product>()
+                        .HasOne(p => p.Details)
+                        .WithOne(d => d.Products)
+                        .HasForeignKey<ProductDetail>(d => d.ProductId);
         }
 
 

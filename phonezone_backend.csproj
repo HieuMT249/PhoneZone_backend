@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.35" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.35" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.35">
       <PrivateAssets>all</PrivateAssets>
@@ -19,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="DTO\respond\" />
-    <Folder Include="DTO\request\" />
   </ItemGroup>
 
 </Project>
