@@ -25,6 +25,16 @@ namespace phonezone_backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Accept", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                });
+            });
+
             // Xây dựng ứng dụng
             var app = builder.Build();
 
@@ -51,8 +61,12 @@ namespace phonezone_backend
                     dbContext.Products.AddRange(newProducts);
                     dbContext.SaveChanges();
 
-                    var newDetails = newProducts.Select(product => product.Details).ToList();
-                    dbContext.ProductDetails.AddRange(newDetails);
+                    foreach (var product in newProducts)
+                    {
+                        product.Details.ProductId = product.Id;
+                    }
+
+                    dbContext.ProductDetails.AddRange(newProducts.Select(p => p.Details).Where(d => d != null));
                     dbContext.SaveChanges();
 
                     Console.WriteLine("Dữ liệu đã được nhập vào cơ sở dữ liệu thành công!");
@@ -63,12 +77,15 @@ namespace phonezone_backend
                 }
             }
 
+
             // Cấu hình pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors("Accept");
 
             app.UseHttpsRedirection();
             app.UseAuthorization();

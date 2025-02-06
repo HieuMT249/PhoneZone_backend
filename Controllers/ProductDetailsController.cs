@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,53 +12,47 @@ namespace phonezone_backend.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class ProductDetailsController : ControllerBase
     {
         private readonly PhoneZoneDBContext _context;
 
-        public UsersController(PhoneZoneDBContext context)
+        public ProductDetailsController(PhoneZoneDBContext context)
         {
             _context = context;
         }
 
-        [HttpPost("login")]
-        public IActionResult Login()
-        {
-            return Ok(new { userId = "1", name = "user1", email = "user1@gmail.com", role = "User" });
-        }
-
-        // GET: api/Users
+        // GET: api/ProductDetails
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser()
+        public async Task<ActionResult<IEnumerable<ProductDetail>>> GetProductDetails()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.ProductDetails.ToListAsync();
         }
 
-        // GET: api/Users/5
+        // GET: api/ProductDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<ProductDetail>> GetProductDetail(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var productDetail = await _context.ProductDetails.FindAsync(id);
 
-            if (user == null)
+            if (productDetail == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return productDetail;
         }
 
-        // PUT: api/Users/5
+        // PUT: api/ProductDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutProductDetail(int id, ProductDetail productDetail)
         {
-            if (id != user.Id)
+            if (id != productDetail.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(productDetail).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +60,7 @@ namespace phonezone_backend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!ProductDetailExists(id))
                 {
                     return NotFound();
                 }
@@ -80,36 +73,36 @@ namespace phonezone_backend.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/ProductDetails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<ProductDetail>> PostProductDetail(ProductDetail productDetail)
         {
-            _context.Users.Add(user);
+            _context.ProductDetails.Add(productDetail);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetProductDetail", new { id = productDetail.Id }, productDetail);
         }
 
-        // DELETE: api/Users/5
+        // DELETE: api/ProductDetails/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteProductDetail(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var productDetail = await _context.ProductDetails.FindAsync(id);
+            if (productDetail == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
+            _context.ProductDetails.Remove(productDetail);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool ProductDetailExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.ProductDetails.Any(e => e.Id == id);
         }
     }
 }
