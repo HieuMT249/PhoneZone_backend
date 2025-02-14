@@ -2,18 +2,13 @@
 
 namespace phonezone_backend.Models
 {
-    public class ProductDetail
+    public class Specification
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
-        public string ProductDescription { get; set; } //thong tin san pham
-        public string Camera {  get; set; } 
-        public string StorageCapacity { get; set; } //dung luong luu tru
-        public string FastCharging { get; set; } //ho tro sac nhanh
-        public string FaceID { get; set; }
-        public string Technology { get; set; } //cong nghe
-        public string Style { get; set; } //kieu dang
-        public string Size { get; set; } //kich thuoc
+        public string Thumbnails { get; set; } //anh thumbnails
+        public string OutstandingFeatures { get; set; } //đặc điểm nổi bật
+        public string Camera {  get; set; } //camera
         public string Model { get; set; } 
         public string Colour { get; set; } //mau sac
         public string Weight { get; set; }  //trong luong
@@ -53,6 +48,6 @@ namespace phonezone_backend.Models
         public string OperatingSystem { get; set; } //Hệ điều hành
 
 
-        public virtual Product Products { get; set; }
+        public virtual Product Product { get; set; }
     }
 }
