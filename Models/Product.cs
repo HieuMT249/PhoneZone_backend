@@ -8,7 +8,13 @@
         public string NewPrice { get; set; }
         public string Branch { get; set; }
         public string Image { get; set; }
+        public string ProductDescription { get; set; }
+        public string Stock { get; set; }
 
-        public virtual ProductDetail Details { get; set; }
+        public ICollection<CartItem> CartItems { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; }
+
+        public ICollection<WishListItem> WishListItems { get; set; }
+        public Specification Specification { get; set; }
     }
 }

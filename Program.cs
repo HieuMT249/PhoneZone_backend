@@ -19,6 +19,7 @@ namespace phonezone_backend
 
             // Đăng ký ExcelService
             builder.Services.AddTransient<ExcelService>();
+            builder.Services.AddTransient<BrandExcelService>();
 
             // Đăng ký các dịch vụ khác
             builder.Services.AddControllers();
@@ -45,10 +46,25 @@ namespace phonezone_backend
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<PhoneZoneDBContext>();
                     var excelService = scope.ServiceProvider.GetRequiredService<ExcelService>();
+                    var brandService = scope.ServiceProvider.GetRequiredService<BrandExcelService>();
 
                     // Đường dẫn tới file Excel
                     string excelPath = @"Data/data.xlsx";
+                    string brandPath = @"Data/brand.xlsx";
                     var products = excelService.ReadDataFromExcel(excelPath);
+                    var brands = brandService.ReadDataFromExcel(brandPath);
+
+                    var existingBrands = dbContext.Brands
+                        .Where(b => brands.Select(br => br.Name).Contains(b.Name))
+                        .ToList();
+
+                    var newBrands = brands
+                        .Where(brand => !existingBrands.Any(b => b.Name == brand.Name))
+                        .ToList();
+
+
+                    dbContext.Brands.AddRange(newBrands);
+                    dbContext.SaveChanges();
 
                     var existingProducts = dbContext.Products
                         .Where(p => products.Select(prod => prod.ProductName).Contains(p.ProductName))
@@ -58,15 +74,16 @@ namespace phonezone_backend
                         .Where(product => !existingProducts.Any(ep => ep.ProductName == product.ProductName && ep.Branch == product.Branch))
                         .ToList();
 
+
                     dbContext.Products.AddRange(newProducts);
                     dbContext.SaveChanges();
 
                     foreach (var product in newProducts)
                     {
-                        product.Details.ProductId = product.Id;
+                        product.Specification.Id = product.Id;
                     }
 
-                    dbContext.ProductDetails.AddRange(newProducts.Select(p => p.Details).Where(d => d != null));
+                    dbContext.Specifications.AddRange(newProducts.Select(p => p.Specification).Where(d => d != null));
                     dbContext.SaveChanges();
 
                     Console.WriteLine("Dữ liệu đã được nhập vào cơ sở dữ liệu thành công!");
