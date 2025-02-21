@@ -12,47 +12,47 @@ namespace phonezone_backend.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class OrderCouponsController : ControllerBase
     {
         private readonly PhoneZoneDBContext _context;
 
-        public UsersController(PhoneZoneDBContext context)
+        public OrderCouponsController(PhoneZoneDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Users
+        // GET: api/OrderCoupons
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<OrderCoupon>>> GetOrdersCoupons()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.OrdersCoupons.ToListAsync();
         }
 
-        // GET: api/Users/email
-        [HttpGet("{email}")]
-        public async Task<ActionResult<User>> GetUser(string email)
+        // GET: api/OrderCoupons/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderCoupon>> GetOrderCoupon(int id)
         {
-            var user = await _context.Users.Where(u => u.Email == email).FirstAsync();
+            var orderCoupon = await _context.OrdersCoupons.FindAsync(id);
 
-            if (user == null)
+            if (orderCoupon == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return orderCoupon;
         }
 
-        // PUT: api/Users/5
+        // PUT: api/OrderCoupons/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutOrderCoupon(int id, OrderCoupon orderCoupon)
         {
-            if (id != user.Id)
+            if (id != orderCoupon.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(orderCoupon).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace phonezone_backend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!OrderCouponExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace phonezone_backend.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/OrderCoupons
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<OrderCoupon>> PostOrderCoupon(OrderCoupon orderCoupon)
         {
-            _context.Users.Add(user);
+            _context.OrdersCoupons.Add(orderCoupon);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetOrderCoupon", new { id = orderCoupon.Id }, orderCoupon);
         }
 
-        // DELETE: api/Users/5
+        // DELETE: api/OrderCoupons/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteOrderCoupon(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var orderCoupon = await _context.OrdersCoupons.FindAsync(id);
+            if (orderCoupon == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
+            _context.OrdersCoupons.Remove(orderCoupon);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool OrderCouponExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.OrdersCoupons.Any(e => e.Id == id);
         }
     }
 }

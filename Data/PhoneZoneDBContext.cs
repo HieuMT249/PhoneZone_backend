@@ -22,58 +22,57 @@ namespace phonezone_backend.Data
         {
 
             modelBuilder.Entity<WishList>()
-            .HasOne(w => w.User)
-            .WithMany(u => u.WishLists)
-            .HasForeignKey(w => w.UserId);
+                .HasOne(w => w.User)
+                .WithMany(u => u.WishLists)
+                .HasForeignKey(w => w.UserId);
 
             modelBuilder.Entity<Cart>()
-            .HasOne(c => c.User)
-            .WithMany(u => u.Carts)
-            .HasForeignKey(c => c.UserId);
+                .HasOne(c => c.User)
+                .WithMany(u => u.Carts)
+                .HasForeignKey(c => c.UserId);
 
             modelBuilder.Entity<CartItem>()
-            .HasOne(ci => ci.Cart)
-            .WithMany(c => c.CartItems)
-            .HasForeignKey(ci => ci.CartId);
+                .HasOne(ci => ci.Cart)
+                .WithMany(c => c.CartItems)
+                .HasForeignKey(ci => ci.CartId);
 
             modelBuilder.Entity<CartItem>()
-            .HasOne(ci => ci.Product)
-            .WithMany(p => p.CartItems)
-            .HasForeignKey(ci => ci.ProductId);
+                .HasOne(ci => ci.Product)
+                .WithMany(p => p.CartItems)
+                .HasForeignKey(ci => ci.ProductId);
 
             modelBuilder.Entity<Order>()
-            .HasOne(o => o.User)
-            .WithMany(u => u.Orders)
-            .HasForeignKey(o => o.UserId);
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId);
 
             modelBuilder.Entity<OrderDetail>()
-            .HasOne(od => od.Order)
-            .WithMany(o => o.OrderDetails)
-            .HasForeignKey(od => od.OrderId);
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId);
 
             modelBuilder.Entity<OrderDetail>()
-            .HasOne(od => od.Product)
-            .WithMany(p => p.OrderDetails)
-            .HasForeignKey(od => od.ProductId);
+                .HasOne(od => od.Product)
+                .WithMany(p => p.OrderDetails)
+                .HasForeignKey(od => od.ProductId);
 
             modelBuilder.Entity<OrderCoupon>()
-            .HasOne(oc => oc.Order)
-            .WithMany(o => o.OrderCoupons)
-            .HasForeignKey(oc => oc.OrderId);
+                .HasOne(oc => oc.Order)
+                .WithMany(o => o.OrderCoupons)
+                .HasForeignKey(oc => oc.OrderId);
 
             modelBuilder.Entity<OrderCoupon>()
-            .HasOne(oc => oc.Coupon)
-            .WithMany(c => c.OrderCoupons)
-            .HasForeignKey(oc => oc.CouponId);
+                .HasOne(oc => oc.Coupon)
+                .WithMany(c => c.OrderCoupons)
+                .HasForeignKey(oc => oc.CouponId);
 
             modelBuilder.Entity<Specification>()
-            .HasOne(s => s.Product)
-            .WithOne(p => p.Specification)
-            .HasForeignKey<Specification>(s => s.ProductId);
-
+                .HasOne(s => s.Product)
+                .WithOne(p => p.Specification)
+                .HasForeignKey<Specification>(s => s.ProductId);
 
             modelBuilder.Entity<WishListItem>()
-            .HasKey(wli => new { wli.WishListId, wli.ProductId });
+                .HasKey(wli => new { wli.WishListId, wli.ProductId });
 
             modelBuilder.Entity<WishListItem>()
                 .HasOne(wli => wli.WishList)

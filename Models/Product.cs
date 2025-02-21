@@ -9,7 +9,7 @@
         public string Branch { get; set; }
         public string Image { get; set; }
         public string ProductDescription { get; set; }
-        public string Stock { get; set; }
+        public string Stock { get; set; } = "10";
 
         public ICollection<CartItem> CartItems { get; set; }
         public ICollection<OrderDetail> OrderDetails { get; set; }

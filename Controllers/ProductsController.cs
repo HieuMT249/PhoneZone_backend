@@ -10,7 +10,7 @@ using phonezone_backend.Models;
 
 namespace phonezone_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -25,7 +25,8 @@ namespace phonezone_backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _context.Products.ToListAsync();
+            return products;
         }
 
         // GET: api/Products/5
