@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using phonezone_backend.Data;
 
@@ -11,9 +12,10 @@ using phonezone_backend.Data;
 namespace phonezone_backend.Migrations
 {
     [DbContext(typeof(PhoneZoneDBContext))]
-    partial class PhoneZoneDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250217141310_db_fix")]
+    partial class db_fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,10 +138,6 @@ namespace phonezone_backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Color")
-                        .HasColumnType("nvarchar(max)")
-                        .UseCollation("Vietnamese_CI_AS");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");

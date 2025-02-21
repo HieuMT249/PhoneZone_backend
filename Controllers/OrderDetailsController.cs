@@ -12,47 +12,47 @@ namespace phonezone_backend.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class OrderDetailsController : ControllerBase
     {
         private readonly PhoneZoneDBContext _context;
 
-        public UsersController(PhoneZoneDBContext context)
+        public OrderDetailsController(PhoneZoneDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Users
+        // GET: api/OrderDetails
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetails()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.OrderDetails.ToListAsync();
         }
 
-        // GET: api/Users/email
-        [HttpGet("{email}")]
-        public async Task<ActionResult<User>> GetUser(string email)
+        // GET: api/OrderDetails/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
         {
-            var user = await _context.Users.Where(u => u.Email == email).FirstAsync();
+            var orderDetail = await _context.OrderDetails.FindAsync(id);
 
-            if (user == null)
+            if (orderDetail == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return orderDetail;
         }
 
-        // PUT: api/Users/5
+        // PUT: api/OrderDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutOrderDetail(int id, OrderDetail orderDetail)
         {
-            if (id != user.Id)
+            if (id != orderDetail.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(orderDetail).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace phonezone_backend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!OrderDetailExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace phonezone_backend.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/OrderDetails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<OrderDetail>> PostOrderDetail(OrderDetail orderDetail)
         {
-            _context.Users.Add(user);
+            _context.OrderDetails.Add(orderDetail);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetOrderDetail", new { id = orderDetail.Id }, orderDetail);
         }
 
-        // DELETE: api/Users/5
+        // DELETE: api/OrderDetails/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteOrderDetail(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            if (orderDetail == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
+            _context.OrderDetails.Remove(orderDetail);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool OrderDetailExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.OrderDetails.Any(e => e.Id == id);
         }
     }
 }
