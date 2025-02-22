@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,22 @@ namespace phonezone_backend.Controllers
             }
 
             return cartItem;
+        }
+
+        [HttpDelete("user/{userId}")]
+        public async Task<IActionResult> GetUserCartItem(int userId)
+        {
+            var cartItem = await _context.CartItems.Where(item => item.Cart.UserId == userId).FirstOrDefaultAsync();
+
+            if (cartItem == null)
+            {
+                return NotFound();
+            }
+
+            _context.CartItems.Remove(cartItem);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         // PUT: api/CartItems/5
@@ -100,24 +117,7 @@ namespace phonezone_backend.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{userId}")]
-        public async Task<IActionResult> ClearCartItems(int userId)
-        {
-            var cart = await _context.Carts
-                .Include(c => c.CartItems)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cart == null)
-            {
-                return NotFound("Giỏ hàng không tồn tại.");
-            }
-            _context.CartItems.RemoveRange(cart.CartItems);
-
-            await _context.SaveChangesAsync();
-
-            return Ok("Các sản phẩm đã được xóa khỏi giỏ hàng.");
-        }
-
+        
         // DELETE: api/CartItems/{userId}/{id}
         [HttpDelete("{userId}/{id}")]
         public async Task<IActionResult> DeleteCartItem(int userId, int id)
