@@ -73,6 +73,21 @@ namespace phonezone_backend.Controllers
             return NoContent();
         }
 
+        [HttpGet("Order/{orderId}")]
+        public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetailsByOrderId(int orderId)
+        {
+            var orderDetails = await _context.OrderDetails
+                                              .Where(od => od.OrderId == orderId)
+                                              .ToListAsync();
+
+            if (orderDetails == null || !orderDetails.Any())
+            {
+                return NotFound();
+            }
+
+            return orderDetails;
+        }
+
         // POST: api/OrderDetails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
