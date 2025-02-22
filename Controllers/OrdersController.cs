@@ -22,6 +22,19 @@ namespace phonezone_backend.Controllers
             _context = context;
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByUserId(int userId)
+        {
+            var orders = await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+
+            if (orders == null || orders.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(orders);
+        }
+
         // GET: api/Orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()

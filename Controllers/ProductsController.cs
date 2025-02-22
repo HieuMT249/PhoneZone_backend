@@ -15,6 +15,11 @@ namespace phonezone_backend.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly PhoneZoneDBContext _context;
+        private static List<Product> cachedShockProducts = null;
+        private static List<Product> cachedDealProducts = null;
+        private static DateTime? shockCacheTime = null;
+        private static DateTime? dealCacheTime = null;
+        private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(3);
 
         public ProductsController(PhoneZoneDBContext context)
         {
@@ -78,20 +83,30 @@ namespace phonezone_backend.Controllers
         [HttpGet("shock")]
         public async Task<ActionResult<IEnumerable<Product>>> GetShockProducts()
         {
-            var shockProducts = await _context.Products
-                                        .FromSqlRaw("SELECT TOP 10 * FROM Products ORDER BY NEWID()")
-                                        .ToListAsync();
-            return Ok(shockProducts);
+            if (cachedShockProducts == null || shockCacheTime == null || (DateTime.Now - shockCacheTime.Value) > CacheDuration)
+            {
+                cachedShockProducts = await _context.Products
+                                                    .FromSqlRaw("SELECT TOP 10 * FROM Products ORDER BY NEWID()")
+                                                    .ToListAsync();
+                shockCacheTime = DateTime.Now; // Lưu thời gian cache
+            }
+
+            return Ok(cachedShockProducts);
         }
 
         // GET: api/Products/deal
         [HttpGet("deal")]
         public async Task<ActionResult<IEnumerable<Product>>> GetDealProducts()
         {
-            var dealProducts = await _context.Products
-                                        .FromSqlRaw("SELECT TOP 10 * FROM Products ORDER BY NEWID()")
-                                        .ToListAsync();
-            return Ok(dealProducts);
+            if (cachedDealProducts == null || dealCacheTime == null || (DateTime.Now - dealCacheTime.Value) > CacheDuration)
+            {
+                cachedDealProducts = await _context.Products
+                                                   .FromSqlRaw("SELECT TOP 10 * FROM Products ORDER BY NEWID()")
+                                                   .ToListAsync();
+                dealCacheTime = DateTime.Now;
+            }
+
+            return Ok(cachedDealProducts);
         }
 
         // GET: api/Products/dienthoai/{branch}
