@@ -10,31 +10,25 @@ using phonezone_backend.Models;
 
 namespace phonezone_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class AdminProductController : ControllerBase
     {
         private readonly PhoneZoneDBContext _context;
-        private static List<Product> cachedShockProducts = null;
-        private static List<Product> cachedDealProducts = null;
-        private static DateTime? shockCacheTime = null;
-        private static DateTime? dealCacheTime = null;
-        private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
 
-        public ProductsController(PhoneZoneDBContext context)
+        public AdminProductController(PhoneZoneDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Products
+        // GET: api/AdminProduct
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await _context.Products.ToListAsync();
-            return products.ToArray();
+            return await _context.Products.ToListAsync();
         }
 
-        // GET: api/Products/5
+        // GET: api/AdminProduct/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
@@ -48,7 +42,7 @@ namespace phonezone_backend.Controllers
             return product;
         }
 
-        // PUT: api/Products/5
+        // PUT: api/AdminProduct/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, Product product)
@@ -79,51 +73,7 @@ namespace phonezone_backend.Controllers
             return NoContent();
         }
 
-        // GET: api/Products/shock
-        [HttpGet("shock")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetShockProducts()
-        {
-            if (cachedShockProducts == null || shockCacheTime == null || (DateTime.Now - shockCacheTime.Value) > CacheDuration)
-            {
-                cachedShockProducts = await _context.Products
-                                                    .FromSqlRaw("SELECT TOP 10 * FROM Products ORDER BY NEWID()")
-                                                    .ToListAsync();
-                shockCacheTime = DateTime.Now; // Lưu thời gian cache
-            }
-
-            return Ok(cachedShockProducts.ToArray());
-        }
-
-        // GET: api/Products/deal
-        [HttpGet("deal")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetDealProducts()
-        {
-            if (cachedDealProducts == null || dealCacheTime == null || (DateTime.Now - dealCacheTime.Value) > CacheDuration)
-            {
-                cachedDealProducts = await _context.Products
-                                                   .FromSqlRaw("SELECT TOP 10 * FROM Products ORDER BY NEWID()")
-                                                   .ToListAsync();
-                dealCacheTime = DateTime.Now;
-            }
-
-            return Ok(cachedDealProducts.ToArray());
-        }
-
-        // GET: api/Products/dienthoai/{branch}
-        [HttpGet("dienthoai/{branch}")]
-        public async Task<ActionResult<Product>> GetProductByBranch(string branch)
-        {
-            var product = _context.Products.Where(p => p.Branch == branch).ToList();
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(product.ToArray());
-        }
-
-        // POST: api/Products
+        // POST: api/AdminProduct
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
@@ -134,7 +84,7 @@ namespace phonezone_backend.Controllers
             return CreatedAtAction("GetProduct", new { id = product.Id }, product);
         }
 
-        // DELETE: api/Products/5
+        // DELETE: api/AdminProduct/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -153,6 +103,39 @@ namespace phonezone_backend.Controllers
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);
+        }
+
+        // GET: api/admin/AdminProduct/total
+        [HttpGet("total")]
+        public async Task<ActionResult<int>> GetTotalProducts()
+        {
+            // Lấy tổng số lượng sản phẩm
+            int totalProducts = await _context.Products.CountAsync();
+
+            // Trả về tổng số lượng sản phẩm
+            return Ok(totalProducts);
+        }
+
+        // GET: api/admin/AdminProduct/brand-product-count
+        [HttpGet("brand-product-count")]
+        public async Task<ActionResult<IEnumerable<object>>> GetProductCountByBrand()
+        {
+            // Kiểm tra nếu bảng Brand hoặc Product không có dữ liệu
+            if (_context.Brands == null || _context.Products == null)
+            {
+                return NotFound("Không tìm thấy dữ liệu về sản phẩm hoặc hãng.");
+            }
+
+            var productCountByBrand = await _context.Products
+                .GroupBy(p => p.Branch) // Nhóm theo tên hãng (Branch)
+                .Select(group => new
+                {
+                    BrandName = group.Key,       // Tên hãng
+                    ProductCount = group.Count() // Số lượng sản phẩm trong nhóm đó
+                })
+                .ToListAsync();
+
+            return Ok(productCountByBrand);
         }
     }
 }

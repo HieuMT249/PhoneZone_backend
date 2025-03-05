@@ -12,8 +12,8 @@ using phonezone_backend.Data;
 namespace phonezone_backend.Migrations
 {
     [DbContext(typeof(PhoneZoneDBContext))]
-    [Migration("20250214091317_Final_DB")]
-    partial class Final_DB
+    [Migration("20250217070536_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

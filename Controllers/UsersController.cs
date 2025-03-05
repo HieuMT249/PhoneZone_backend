@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using phonezone_backend.Data;
+using phonezone_backend.DTO.request;
 using phonezone_backend.Models;
 
 namespace phonezone_backend.Controllers
@@ -104,5 +105,54 @@ namespace phonezone_backend.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
+
+        // GET: api/Users/email
+        [HttpGet("email/{email}")]
+        public async Task<ActionResult<User>> GetUserByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest("Email không hợp lệ.");
+            }
+
+            var user = await _context.Users
+                                     .Where(u => u.Email.ToLower() == email.ToLower()) // So sánh không phân biệt hoa thường
+                                     .FirstOrDefaultAsync(); // Tránh lỗi nếu không có kết quả
+
+            if (user == null)
+            {
+                return NotFound("Không tìm thấy người dùng.");
+            }
+
+            return Ok(user);
+        }
+        [HttpPut("changepassword/{id}")]
+        public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.OldPassword) ||
+                string.IsNullOrWhiteSpace(model.NewPassword) )
+            {
+                return BadRequest("Vui lòng nhập đầy đủ thông tin.");
+            }
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound("Người dùng không tồn tại.");
+            }
+
+            // Kiểm tra mật khẩu cũ bằng BCrypt
+            if (!BCrypt.Net.BCrypt.Verify(model.OldPassword, user.Password))
+            {
+                return BadRequest("Mật khẩu cũ không đúng.");
+            }
+
+            // Mã hóa mật khẩu mới và cập nhật
+            user.Password = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("Đổi mật khẩu thành công.");
+        }
+
     }
 }

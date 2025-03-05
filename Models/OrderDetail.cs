@@ -1,14 +1,14 @@
-﻿namespace phonezone_backend.Models
-{
-    public class OrderDetail
+﻿    namespace phonezone_backend.Models
     {
-        public int Id { get; set; }
-        public int OrderId { get; set; }
-        public int ProductId { get; set; }
-        public int Quantity { get; set; }
-        public string Price { get; set; }
+        public class OrderDetail
+        {
+            public int Id { get; set; }
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public int Quantity { get; set; }
+            public string Price { get; set; }
 
-        public Order Order { get; set; }
-        public Product Product { get; set; }
+            public Order Order { get; set; }
+            public Product Product { get; set; }
+        }
     }
-}
