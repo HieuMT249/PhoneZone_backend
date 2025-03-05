@@ -22,7 +22,10 @@ namespace phonezone_backend
             // Đăng ký ExcelService
             builder.Services.AddTransient<ExcelService>();
             builder.Services.AddTransient<BrandExcelService>();
-                
+
+            // Đăng ký EmailService
+            builder.Services.AddSingleton<EmailService>();
+
             // Đăng ký các dịch vụ khác
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

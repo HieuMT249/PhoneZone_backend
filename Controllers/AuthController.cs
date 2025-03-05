@@ -16,6 +16,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
+using phonezone_backend.Services;
+using System.Text;
 
 namespace phonezone_backend.Controllers
 {
@@ -25,11 +27,13 @@ namespace phonezone_backend.Controllers
     {
         private readonly PhoneZoneDBContext _context;
         private readonly IConfiguration _configuration;
+        private readonly EmailService _emailService;
 
-        public AuthController(PhoneZoneDBContext context, IConfiguration configuration)
+        public AuthController(PhoneZoneDBContext context, IConfiguration configuration, EmailService emailService)
         {
             _context = context;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
@@ -115,6 +119,59 @@ namespace phonezone_backend.Controllers
         private bool VerifyPassword(string typePassword, string dbPassword)
         {
             return BCrypt.Net.BCrypt.Verify(typePassword, dbPassword);
+        }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (user == null)
+                return BadRequest(new { message = "Email không tồn tại" });
+
+            // Tạo token JWT
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value); // Đọc khóa bí mật từ appsettings.json
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { new Claim("userId", user.Id.ToString()) }),
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var resetLink = $"http://localhost:5173/reset-password/{tokenHandler.WriteToken(token)}";
+
+            _emailService.SendResetPasswordEmail(user.Email, resetLink);
+            return Ok(new { message = "Link đặt lại mật khẩu đã được gửi!" });
+        }
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var key = Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value);
+                var claims = tokenHandler.ValidateToken(request.Token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                var userId = int.Parse(claims.Claims.First(x => x.Type == "userId").Value);
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null) return BadRequest(new { message = "User không tồn tại" });
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Đặt lại mật khẩu thành công!" });
+            }
+            catch
+            {
+                return BadRequest(new { message = "Token không hợp lệ!" });
+            }
         }
     }
 }
