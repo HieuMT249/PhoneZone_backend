@@ -49,63 +49,63 @@ namespace phonezone_backend
             var app = builder.Build();
 
             // Thêm dữ liệu từ Excel vào cơ sở dữ liệu
-            Task.Run(() =>
-            {
-                var scope = app.Services.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<PhoneZoneDBContext>();
-                var excelService = scope.ServiceProvider.GetRequiredService<ExcelService>();
-                var brandService = scope.ServiceProvider.GetRequiredService<BrandExcelService>();
+            // Task.Run(() =>
+            // {
+            //     var scope = app.Services.CreateScope();
+            //     var dbContext = scope.ServiceProvider.GetRequiredService<PhoneZoneDBContext>();
+            //     var excelService = scope.ServiceProvider.GetRequiredService<ExcelService>();
+            //     var brandService = scope.ServiceProvider.GetRequiredService<BrandExcelService>();
 
-                var existingProductsCount = dbContext.Products.Count();
-                if (existingProductsCount > 0)
-                {
-                    Console.WriteLine("Sản phẩm đã có trong cơ sở dữ liệu. Bỏ qua quá trình nhập sản phẩm từ Excel.");
-                    return;
-                }
+            //     var existingProductsCount = dbContext.Products.Count();
+            //     if (existingProductsCount > 0)
+            //     {
+            //         Console.WriteLine("Sản phẩm đã có trong cơ sở dữ liệu. Bỏ qua quá trình nhập sản phẩm từ Excel.");
+            //         return;
+            //     }
 
-                // Đường dẫn tới file Excel
-                string excelPath = @"Data/data.xlsx";
-                string brandPath = @"Data/brand.xlsx";
-                var products = excelService.ReadDataFromExcel(excelPath);
-                var brands = brandService.ReadDataFromExcel(brandPath);
+            //     // Đường dẫn tới file Excel
+            //     string excelPath = @"Data/data.xlsx";
+            //     string brandPath = @"Data/brand.xlsx";
+            //     var products = excelService.ReadDataFromExcel(excelPath);
+            //     var brands = brandService.ReadDataFromExcel(brandPath);
 
-                var existingBrands = dbContext.Brands
-                    .Where(b => brands.Select(br => br.Name).Contains(b.Name))
-                    .ToList();
+            //     var existingBrands = dbContext.Brands
+            //         .Where(b => brands.Select(br => br.Name).Contains(b.Name))
+            //         .ToList();
 
-                var newBrands = brands
-                    .Where(brand => !existingBrands.Any(b => b.Name == brand.Name))
-                    .ToList();
-
-
-                dbContext.Brands.AddRange(newBrands);
-                dbContext.SaveChanges();
-
-                var existingProducts = dbContext.Products
-                    .Where(p => products.Select(prod => prod.ProductName).Contains(p.ProductName))
-                    .ToList();
-
-                var newProducts = products
-                    .Where(product => !existingProducts.Any(ep => ep.ProductName == product.ProductName && ep.Branch == product.Branch))
-                    .ToList();
+            //     var newBrands = brands
+            //         .Where(brand => !existingBrands.Any(b => b.Name == brand.Name))
+            //         .ToList();
 
 
-                dbContext.Products.AddRange(newProducts);
-                dbContext.SaveChanges();
+            //     dbContext.Brands.AddRange(newBrands);
+            //     dbContext.SaveChanges();
 
-                foreach (var product in newProducts)
-                {
-                    if (product.Specification != null)
-                    {
-                        product.Specification.ProductId = product.Id;
-                    }
-                }
+            //     var existingProducts = dbContext.Products
+            //         .Where(p => products.Select(prod => prod.ProductName).Contains(p.ProductName))
+            //         .ToList();
 
-                dbContext.Specifications.AddRange(newProducts.Select(p => p.Specification).Where(d => d != null));
-                dbContext.SaveChanges();
+            //     var newProducts = products
+            //         .Where(product => !existingProducts.Any(ep => ep.ProductName == product.ProductName && ep.Branch == product.Branch))
+            //         .ToList();
 
-                Console.WriteLine("Dữ liệu đã được nhập vào cơ sở dữ liệu thành công!");
-            });
+
+            //     dbContext.Products.AddRange(newProducts);
+            //     dbContext.SaveChanges();
+
+            //     foreach (var product in newProducts)
+            //     {
+            //         if (product.Specification != null)
+            //         {
+            //             product.Specification.ProductId = product.Id;
+            //         }
+            //     }
+
+            //     dbContext.Specifications.AddRange(newProducts.Select(p => p.Specification).Where(d => d != null));
+            //     dbContext.SaveChanges();
+
+            //     Console.WriteLine("Dữ liệu đã được nhập vào cơ sở dữ liệu thành công!");
+            // });
 
 
             // Cấu hình pipeline
