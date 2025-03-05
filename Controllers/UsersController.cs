@@ -11,7 +11,7 @@ using phonezone_backend.Models;
 
 namespace phonezone_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -29,11 +29,11 @@ namespace phonezone_backend.Controllers
             return await _context.Users.ToListAsync();
         }
 
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        // GET: api/Users/email
+        [HttpGet("{email}")]
+        public async Task<ActionResult<User>> GetUser(string email)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.Where(u => u.Email == email).FirstAsync();
 
             if (user == null)
             {

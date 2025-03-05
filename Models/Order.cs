@@ -14,6 +14,7 @@ namespace phonezone_backend.Models
 
         public string Status { get; set; }
         public string PaymentMethod { get; set; }
+        public string Color { get; set; }
 
         public User User { get; set; }
         public ICollection<OrderDetail> OrderDetails { get; set; }

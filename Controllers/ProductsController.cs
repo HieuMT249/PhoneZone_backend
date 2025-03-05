@@ -10,7 +10,7 @@ using phonezone_backend.Models;
 
 namespace phonezone_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
