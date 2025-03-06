@@ -92,6 +92,12 @@ namespace phonezone_backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
+            if (order == null)
+            {
+                return BadRequest("Invalid order data");
+            }
+            order.CreatedDate = DateTime.Now;
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 

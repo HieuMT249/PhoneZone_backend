@@ -44,20 +44,23 @@ namespace phonezone_backend.Controllers
         }
 
         [HttpDelete("user/{userId}")]
-        public async Task<IActionResult> GetUserCartItem(int userId)
+        public async Task<IActionResult> DeleteUserCartItems(int userId)
         {
-            var cartItem = await _context.CartItems.Where(item => item.Cart.UserId == userId).FirstOrDefaultAsync();
+            var cartItems = await _context.CartItems
+                .Where(item => item.Cart.UserId == userId)
+                .ToListAsync();
 
-            if (cartItem == null)
+            if (cartItems == null || !cartItems.Any())
             {
-                return NotFound();
+                return NotFound("Giỏ hàng của người dùng không có sản phẩm.");
             }
 
-            _context.CartItems.Remove(cartItem);
+            _context.CartItems.RemoveRange(cartItems);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
 
         // PUT: api/CartItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

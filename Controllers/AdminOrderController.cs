@@ -144,7 +144,7 @@ namespace phonezone_backend.Controllers
             var orders = await _context.Orders
                 .Where(o => o.CreatedDate.Month == month &&
                             o.CreatedDate.Year == year &&
-                            o.Status == "Đã giao")
+                            o.Status == "success")
                 .ToListAsync();
 
             // Chuyển đổi và nhóm theo ngày

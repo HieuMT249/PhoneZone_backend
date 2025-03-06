@@ -69,13 +69,18 @@ namespace phonezone_backend.Controllers
         public async Task<ActionResult<string>> Login(LoginRequest request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            
+
             if (user == null)
             {
                 return BadRequest("Không tìm thấy thông tin tài khoản");
             }
 
-            if(!VerifyPassword(request.Password, user.Password))
+            if (!user.isActive) // Kiểm tra tài khoản có đang hoạt động không
+            {
+                return BadRequest("Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.");
+            }
+
+            if (!VerifyPassword(request.Password, user.Password))
             {
                 return BadRequest("Sai mật khẩu");
             }
@@ -84,6 +89,7 @@ namespace phonezone_backend.Controllers
 
             return Ok(token);
         }
+
 
         private string CreateJwtToken(User user)
         {
